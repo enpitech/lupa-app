@@ -1,0 +1,72 @@
+{
+  "cli": {
+    "version": ">= 16.0.1",
+    "appVersionSource": "remote"
+  },
+  "build": {
+        "development": {
+            "developmentClient": true,
+            "android": {
+                "buildType": "app-bundle"
+            },
+            "ios": {
+                "autoIncrement": true,
+                "distribution": "internal"
+            },
+            "environment": "development",
+            "env": {
+                "EXPO_PUBLIC_APP_VARIANT": "development"
+            },
+            "channel": "development"
+        },
+        "staging": {
+            "android": {
+                "buildType": "app-bundle",
+                "autoIncrement": true
+            },
+            "ios": {
+                "autoIncrement": true,
+                "distribution": "store"
+            },
+            "environment": "staging",
+            "env": {
+                "EXPO_PUBLIC_APP_VARIANT": "staging"
+            },
+            "channel": "staging"
+        },
+        "production": {
+            "android": {
+                "buildType": "app-bundle",
+                "autoIncrement": true
+            },
+            "ios": {
+                "autoIncrement": true,
+                "distribution": "store"
+            },
+            "environment": "production",
+            "env": {
+                "EXPO_PUBLIC_APP_VARIANT": "production"
+            },
+            "channel": "production"
+        }
+    },
+    "submit": {
+        "staging": {
+            "ios": {
+                "ascAppId": "0000000000" 
+            },
+            "android": {
+                "track": "internal",
+                "releaseStatus": "draft"
+            }
+        },
+        "production": {
+            "ios": {
+                "ascAppId": "0000000000" 
+            },
+            "android": {
+                "track": "internal"
+            }
+        }
+    }
+}
