@@ -1,0 +1,67 @@
+import { create } from 'zustand';
+import { initialState, ModalStore } from './types';
+
+export const useModalStore = create<ModalStore>((set) => ({
+  ...initialState,
+  openModal: ({
+    header,
+    content,
+    footer,
+    variant = 'default',
+    modalWidth = 'w-1/2',
+    modalHeight = 'max-h-[calc(100vh-20px)]',
+    showCloseButton = true,
+    onClose,
+    confirmModal = false,
+    confirmModalMessage,
+    confirmModalMessageYes,
+    confirmModalMessageNo,
+    overflowHidden = false,
+    zIndex,
+    dataTestId,
+  }) =>
+    set({
+      isOpen: true,
+      header,
+      content,
+      footer,
+      variant,
+      modalWidth,
+      modalHeight,
+      showCloseButton,
+      onClose,
+      confirmModal,
+      confirmModalMessage,
+      confirmModalMessageYes,
+      confirmModalMessageNo,
+      overflowHidden,
+      zIndex,
+      dataTestId,
+    }),
+  closeModal: () =>
+    set({
+      isOpen: false,
+      header: null,
+      content: null,
+      footer: null,
+      variant: 'default',
+      modalWidth: 'w-1/2',
+      modalHeight: 'h-4/5',
+      showCloseButton: true,
+      onClose: undefined,
+    }),
+  setHeader: (header) => set({ header }),
+  setContent: (content) => set({ content }),
+  setFooter: (footer) => set({ footer }),
+  setVariant: (variant) => set({ variant }),
+  setModalWidth: (modalWidth) => set({ modalWidth }),
+  setModalHeight: (modalHeight) => set({ modalHeight }),
+  setShowCloseButton: (showCloseButton) => set({ showCloseButton }),
+  setOnClose: () => set({ onClose: undefined }),
+  setConfirmModal: (confirmModal) => set({ confirmModal }),
+  setConfirmModalMessage: (confirmModalMessage) => set({ confirmModalMessage }),
+  setConfirmModalMessageYes: (confirmModalMessageYes) =>
+    set({ confirmModalMessageYes }),
+  setConfirmModalMessageNo: (confirmModalMessageNo) =>
+    set({ confirmModalMessageNo }),
+}));

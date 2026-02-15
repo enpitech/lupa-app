@@ -1,6 +1,6 @@
-# <Your App Name>
+# Lupa
 
-A React Native <Describe your App>...
+A React Native app for Lupa.
 
 ### Technology Stack
 - **Framework**: React Native v0.81, Expo SDK 54
@@ -26,13 +26,9 @@ React Compiler is installed and handles optimization automatically. **Do not use
 - **TanStack Query**: All server state (API data, caching, synchronization). This is the source of truth for any data from the API.
 - **Zustand**: Client-only state (auth tokens, UI preferences, transient app state). Do not duplicate server data in Zustand stores.
 
-### Online-First Architecture
+### Architecture
 
-Auth0 → API Client (singleton) → Custom Hooks (TanStack Query) → Components
-
-- All data fetched from API, no offline persistence
-- TanStack Query for caching (5min staleTime) and request deduplication
-- Components consume hooks, never call API Client directly
+<fill>
 
 ### Directory Structure
 
