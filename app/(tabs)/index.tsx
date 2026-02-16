@@ -6,9 +6,11 @@ import ParallaxScrollView from '@/components/parallax-scroll-view';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { toast } from '@backpackapp-io/react-native-toast';
-import { Link } from 'expo-router';
+import { Link, useRouter } from 'expo-router';
 
 export default function HomeScreen() {
+  const router = useRouter();
+
   return (
     <ParallaxScrollView
       headerBackgroundColor="#A1CEDC"
@@ -31,6 +33,16 @@ export default function HomeScreen() {
         >
           <ThemedText type="defaultSemiBold" style={styles.buttonText}>
             Test Toast
+          </ThemedText>
+        </TouchableOpacity>
+      </ThemedView>
+      <ThemedView style={styles.stepContainer}>
+        <TouchableOpacity
+          style={[styles.toastButton, { backgroundColor: '#8B5CF6' }]}
+          onPress={() => router.push('/poc-dnd')}
+        >
+          <ThemedText type="defaultSemiBold" style={styles.buttonText}>
+            DnD Kit POC
           </ThemedText>
         </TouchableOpacity>
       </ThemedView>
