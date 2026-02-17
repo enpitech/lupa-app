@@ -6,10 +6,11 @@ import {
 } from 'zustand/middleware';
 import { getLoginAction } from './actions/login.action';
 import { getLogoutAction } from './actions/logout.action';
-import { getUpdateProfileAction } from './actions/updateProfile.action';
+import { getUpdateProfileAction } from './actions/update-profile.action';
 import { UserState, UserStore } from '@/types/user';
 import { refreshTokenAction } from './actions/refresh.action';
-import { useAuthLoaderStore } from '@/stores/authLoader';
+import { useAuthLoaderStore } from '@/stores/auth-loader';
+import { secureStorage } from '@/utils/secure-storage';
 
 const initialState: UserState = {
   user: null,
@@ -31,7 +32,7 @@ export const useUserStore = create<UserStore>()(
       {
         name: 'user-storage',
         partialize: (state) => ({ user: state.user }),
-        storage: createJSONStorage(() => localStorage),
+        storage: createJSONStorage(() => secureStorage),
       }
     )
   )

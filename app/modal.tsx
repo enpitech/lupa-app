@@ -1,17 +1,18 @@
+import { theme } from '@/constants/theme';
+import { useTranslation } from '@/hooks/use-translation';
 import { Link } from 'expo-router';
-import { StyleSheet } from 'react-native';
-
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
+import { StyleSheet, Text, View } from 'react-native';
 
 export default function ModalScreen() {
+  const { t } = useTranslation();
+
   return (
-    <ThemedView style={styles.container}>
-      <ThemedText type="title">This is a modal</ThemedText>
+    <View style={styles.container}>
+      <Text style={styles.title}>{t('modal.title')}</Text>
       <Link href="/" dismissTo style={styles.link}>
-        <ThemedText type="link">Go to home screen</ThemedText>
+        <Text style={styles.linkText}>{t('modal.goHome')}</Text>
       </Link>
-    </ThemedView>
+    </View>
   );
 }
 
@@ -20,10 +21,19 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 20,
+    padding: theme.spacing.lg,
+    backgroundColor: theme.colors.background,
+  },
+  title: {
+    ...theme.typography.h2,
+    color: theme.colors.text,
   },
   link: {
-    marginTop: 15,
-    paddingVertical: 15,
+    marginTop: theme.spacing.md,
+    paddingVertical: theme.spacing.md,
+  },
+  linkText: {
+    ...theme.typography.body,
+    color: theme.colors.tint,
   },
 });
