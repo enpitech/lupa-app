@@ -1,7 +1,7 @@
 import { StateCreator } from 'zustand';
 import { UserStore, User } from '@/types/user';
-import { fetchRefreshToken } from '@/services/api/fetchRefreshToken';
-import { trackError } from '@/utils/datadogErrorTracking';
+import { fetchRefreshToken } from '@/services/api/fetch-refresh-token';
+import { secureStorage } from '@/utils/secure-storage';
 
 export const refreshTokenAction: StateCreator<
   UserStore,
@@ -13,16 +13,13 @@ export const refreshTokenAction: StateCreator<
 
   try {
     if (!currentUser) {
-      set({
-        user: null,
-      });
+      set({ user: null });
       return;
     }
 
-    // Fetch a new token using the refresh token
     const data = await fetchRefreshToken();
+
     if (data.isValid) {
-      // Update only the tokens
       set({
         user: {
           ...currentUser,
@@ -32,29 +29,21 @@ export const refreshTokenAction: StateCreator<
         },
       });
 
-      localStorage.setItem('lastTokenRefresh', Date.now().toString());
+      await secureStorage.setItem(
+        'lastTokenRefresh',
+        Date.now().toString()
+      );
     } else {
-      set({
-        user: null,
-      });
+      set({ user: null });
     }
   } catch (error) {
     const errorObj =
       error instanceof Error ? error : new Error('Error refreshing token');
 
-    trackError(errorObj, {
-      errorType: 'store_error',
-      store: 'user',
-      action: 'refreshToken',
-      userEmail: currentUser?.email,
-    });
+    console.error('Error refreshing token:', errorObj);
 
-    set({
-      user: null,
-    });
+    set({ user: null });
   } finally {
-    set({
-      isLoading: false,
-    });
+    set({ isLoading: false });
   }
 };
