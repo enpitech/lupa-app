@@ -38,6 +38,7 @@ export default function RootLayout() {
                   headerShown: true,
                 }}
               />
+              <Stack.Screen name="album/[event_token]" />
               <Stack.Screen
                 name="image-editor"
                 options={{ presentation: 'fullScreenModal' }}

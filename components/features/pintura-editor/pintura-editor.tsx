@@ -9,9 +9,12 @@ import { useRef, useState } from 'react';
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 type PinturaEditorProps = {
-  /** Pre-loaded base64 data URI to edit. If not provided, shows an image picker. */
+  /** Pre-loaded base64 data URI or URL to edit. If not provided, shows an image picker. */
   initialSource?: string;
-  onImageProcessed?: (dataUri: string) => void;
+  onImageProcessed?: (result: {
+    dataUri: string;
+    imageState: PinturaImageState;
+  }) => void;
 };
 
 export function PinturaEditor({ initialSource, onImageProcessed }: PinturaEditorProps) {
@@ -60,10 +63,8 @@ export function PinturaEditor({ initialSource, onImageProcessed }: PinturaEditor
   };
 
   const handleProcess = ({ dest, imageState }: { dest: string; imageState: PinturaImageState }) => {
-    console.log('PinturaEditor: processed imageState:', JSON.stringify(imageState));
-    console.log('PinturaEditor: base64 result:', dest);
     setResultPreview(dest);
-    onImageProcessed?.(dest);
+    onImageProcessed?.({ dataUri: dest, imageState });
   };
 
   const handleUndo = () => {
@@ -106,10 +107,8 @@ export function PinturaEditor({ initialSource, onImageProcessed }: PinturaEditor
                 --color-foreground: 0, 0, 0;
               }
             `}
+            utils={['crop']}
             src={editorSource}
-            onLoad={({ size }) => {
-              console.log('PinturaEditor: loaded', size);
-            }}
             onLoaderror={(err) => {
               console.error('PinturaEditor: load error', err);
               setError(t('imageEditor.editorLoadError'));

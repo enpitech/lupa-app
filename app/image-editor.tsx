@@ -1,34 +1,47 @@
 import { PinturaEditor } from '@/components/features/pintura-editor/pintura-editor';
 import { theme } from '@/constants/theme';
 import { useTranslation } from '@/hooks/use-translation';
+import { useImageEditorStore } from '@/stores/image-editor';
 import { Ionicons } from '@expo/vector-icons';
+import type { PinturaImageState } from '@pqina/pintura';
 import { router } from 'expo-router';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function ImageEditorModal() {
   const { t } = useTranslation();
+  const { sourceUrl, onResult, reset } = useImageEditorStore();
 
-  const handleImageProcessed = (dataUri: string) => {
-    console.log('ImageEditorModal: processed, size:', dataUri.length);
-    console.log('ImageEditorModal: base64 result:', dataUri);
-    // TODO: pass result back to the calling screen via a store or callback
+  const handleClose = () => {
+    reset();
+    router.back();
+  };
+
+  const handleImageProcessed = ({
+    imageState,
+  }: {
+    dataUri: string;
+    imageState: PinturaImageState;
+  }) => {
+    onResult?.(imageState);
+    reset();
     router.back();
   };
 
   return (
     <SafeAreaView style={styles.container} edges={['bottom']}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.closeButton}>
+        <TouchableOpacity onPress={handleClose} style={styles.closeButton}>
           <Ionicons name="close" size={24} color={theme.colors.text} />
         </TouchableOpacity>
-        <Text style={styles.title}>
-          {t('imageEditor.title')}
-        </Text>
+        <Text style={styles.title}>{t('imageEditor.title')}</Text>
         <View style={styles.closeButton} />
       </View>
       <View style={styles.editorContainer}>
-        <PinturaEditor onImageProcessed={handleImageProcessed} />
+        <PinturaEditor
+          initialSource={sourceUrl ?? undefined}
+          onImageProcessed={handleImageProcessed}
+        />
       </View>
     </SafeAreaView>
   );

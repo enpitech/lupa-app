@@ -15,6 +15,12 @@ export const en = {
 
     // Home screen
     'home.title': 'Home',
+    'home.myAlbums': 'My Albums',
+    'home.noAlbums': 'No albums yet',
+    'home.albumCount': '{{count}} photos',
+
+    // Album viewer
+    'album.page': 'Pages {{current}} of {{total}}',
 
     // Explore screen
     'explore.title': 'Explore',
@@ -32,6 +38,8 @@ export const en = {
     'imageEditor.change': 'Change',
     'imageEditor.loadError': 'Failed to load image. Please try again.',
     'imageEditor.editorLoadError': 'Failed to load image in editor.',
+    'imageEditor.saveSuccess': 'Image saved successfully',
+    'imageEditor.saveError': 'Failed to save image changes',
 
     // User menu
     'user.menu.logout': 'Logout',

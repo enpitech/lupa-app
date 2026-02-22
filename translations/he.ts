@@ -15,6 +15,12 @@ export const he = {
 
     // Home screen
     'home.title': 'בית',
+    'home.myAlbums': 'האלבומים שלי',
+    'home.noAlbums': 'עדיין אין אלבומים',
+    'home.albumCount': '{{count}} תמונות',
+
+    // Album viewer
+    'album.page': 'עמודים {{current}} מתוך {{total}}',
 
     // Explore screen
     'explore.title': 'חיפוש',
@@ -32,6 +38,8 @@ export const he = {
     'imageEditor.change': 'החלפה',
     'imageEditor.loadError': 'טעינת התמונה נכשלה. אנא נסו שוב.',
     'imageEditor.editorLoadError': 'טעינת התמונה בעורך נכשלה.',
+    'imageEditor.saveSuccess': 'התמונה נשמרה בהצלחה',
+    'imageEditor.saveError': 'שמירת שינויי התמונה נכשלה',
 
     // User menu
     'user.menu.logout': 'יציאה',

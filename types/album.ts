@@ -1,0 +1,25 @@
+export type Album = {
+  album_id: number;
+  event_token: string;
+  isAlbumOwner: boolean;
+  name: string;
+  host_name: string;
+  image_count: number;
+  image_max: number;
+  image_min: number;
+  cover_image: string;
+  cover_snapshot: string;
+  cover_image_proportion: number;
+  cover_image_width: number;
+  cover_image_height: number;
+  event_status: string;
+  event_type: string;
+  format: string;
+  book_direction: string;
+  skin: string;
+  progress_status: string;
+  insert_date_utc: string;
+  update_date_utc: string;
+  existEpilog: boolean;
+  existProlog: boolean;
+};
