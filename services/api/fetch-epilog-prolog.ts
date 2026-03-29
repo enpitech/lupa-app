@@ -1,6 +1,6 @@
 import { getApiUrl } from './config';
 
-export type EpilogPrologData = {
+export type LegacyEpilogPrologData = {
   text_str: string;
   font_family: string;
   font_size: number;
@@ -9,6 +9,35 @@ export type EpilogPrologData = {
   direction: string;
   qrlink: string;
 };
+
+export type EpilogPrologTextSettings = {
+  font_size: number;
+  font_family: string;
+  max_width_field: number;
+  max_line_count: number;
+};
+
+export type EpilogPrologTextSection = {
+  align: string;
+  style: string;
+  text: string;
+  settings: EpilogPrologTextSettings;
+};
+
+export type StructuredEpilogPrologData = {
+  header?: EpilogPrologTextSection;
+  title?: EpilogPrologTextSection;
+  body?: EpilogPrologTextSection;
+  footer?: EpilogPrologTextSection;
+  qrlink?: string;
+  direction?: string;
+  font_color?: string;
+  bg_color?: string;
+};
+
+export type EpilogPrologData =
+  | LegacyEpilogPrologData
+  | StructuredEpilogPrologData;
 
 export const fetchEpilogProlog = async ({
   eventToken,
@@ -35,5 +64,5 @@ export const fetchEpilogProlog = async ({
   }
 
   const data = await response.json();
-  return data.payload ?? null;
+  return (data.payload as EpilogPrologData | null) ?? null;
 };

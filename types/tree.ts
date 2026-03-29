@@ -38,6 +38,24 @@ export type Frame = {
   m_width_px?: number;
   m_frame_opacity?: number;
   m_image_or_color?: string;
+  m_font_color?: string;
+  m_font_opacity?: number;
+  m_font_bg_image_or_color?: string;
+  m_font_bg_opacity?: number;
+  m_region_width_px?: number;
+  m_region_frame_opacity?: number;
+  m_region_image_or_color?: string;
+  m_container_frame_width_px?: number;
+  m_container_frame_image_or_color?: string;
+  m_container_frame_opacity?: number;
+  m_text_frame_opacity?: number;
+};
+
+export type Textbox = {
+  m_font_opacity: number;
+  m_font_color: string;
+  m_text_bg_color: string;
+  m_text_bg_opacity: number;
 };
 
 export type Container = {
@@ -120,7 +138,7 @@ export type Folder = {
   m_pivot: Point;
   m_pivot_pos: string;
   m_background: Background | null;
-  m_textbox: unknown | null;
+  m_textbox: Textbox | null;
   m_layoutID: number;
   m_child_folders: (Folder | null)[] | null;
   m_folder_frame: TextboxFrame | null;

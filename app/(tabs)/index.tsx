@@ -4,6 +4,7 @@ import { useTranslation } from '@/hooks/use-translation';
 import { useUserAlbums } from '@/hooks/use-user-albums';
 import { useUserStore } from '@/stores/user';
 import type { Album } from '@/types/album';
+import { router } from 'expo-router';
 import {
   ActivityIndicator,
   FlatList,
@@ -27,9 +28,14 @@ export default function HomeScreen() {
     <SafeAreaView style={styles.container} edges={['top']}>
       <View style={styles.headerContainer}>
         <Text style={styles.header}>{t('home.myAlbums')}</Text>
-        <Pressable onPress={logout} style={styles.logoutButton}>
-          <Text style={styles.logoutText}>Logout</Text>
-        </Pressable>
+        <View style={styles.headerActions}>
+          <Pressable onPress={() => router.push('/create-album')} style={styles.createButton}>
+            <Text style={styles.createButtonText}>+</Text>
+          </Pressable>
+          <Pressable onPress={logout} style={styles.logoutButton}>
+            <Text style={styles.logoutText}>Logout</Text>
+          </Pressable>
+        </View>
       </View>
 
       {isLoading && (
@@ -83,6 +89,25 @@ const styles = StyleSheet.create({
   header: {
     ...theme.typography.h2,
     color: theme.colors.text,
+  },
+  headerActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.spacing.sm,
+  },
+  createButton: {
+    width: 36,
+    height: 36,
+    borderRadius: theme.borderRadius.full,
+    backgroundColor: theme.colors.tint,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  createButtonText: {
+    color: '#fff',
+    fontSize: 24,
+    lineHeight: 28,
+    fontWeight: '400',
   },
   logoutButton: {
     paddingHorizontal: theme.spacing.md,

@@ -10,7 +10,7 @@ export const queryKeys = {
     validate: ['user-validate'] as const,
   },
   albums: {
-    list: ['albums'] as const,
+    list: ['user-albums'] as const,
     tree: (eventToken: string) => ['albums', 'tree', eventToken] as const,
     epilogProlog: (eventToken: string, isEpilog: boolean) =>
       ['albums', 'epilog-prolog', eventToken, isEpilog] as const,

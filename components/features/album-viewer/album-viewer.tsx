@@ -1,8 +1,10 @@
-import { theme } from '@/constants/theme';
+import { FloatingButton } from '@/components/ui/floating-button';
 import { queryKeys } from '@/constants/query-keys';
+import { theme } from '@/constants/theme';
 import { useTranslation } from '@/hooks/use-translation';
 import { useUpdateTree } from '@/hooks/use-update-tree';
 import { getImageUrl } from '@/services/api/config';
+import type { EpilogPrologData } from '@/services/api/fetch-epilog-prolog';
 import { useImageEditorStore } from '@/stores/image-editor';
 import type { PhotoAlbum } from '@/types/tree';
 import { getImages, getSpreadFolders, getTexts } from '@/types/tree';
@@ -11,25 +13,24 @@ import { toast } from '@backpackapp-io/react-native-toast';
 import { useQueryClient } from '@tanstack/react-query';
 import { router } from 'expo-router';
 import { useState } from 'react';
-import {
-  FlatList,
-  StyleSheet,
-  Text,
-  View,
-  useWindowDimensions,
-  type ViewToken,
-} from 'react-native';
+import { StyleSheet, Text, View, useWindowDimensions } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { BackCoverView } from './back-cover-view';
 import { CoverView } from './cover-view';
 import { EpilogPrologView } from './epilog-prolog-view';
+import { SpreadRenderer } from './spread-renderer';
 import { SpreadView } from './spread-view';
-import type { EpilogPrologData } from '@/services/api/fetch-epilog-prolog';
 
-// A viewer item can be a cover, prolog, spread, or epilog
+// ---------------------------------------------------------------------------
+// Types
+// ---------------------------------------------------------------------------
+
 type ViewerItem =
   | { type: 'cover' }
   | { type: 'prolog'; data: EpilogPrologData }
   | { type: 'spread'; index: number }
-  | { type: 'epilog'; data: EpilogPrologData };
+  | { type: 'epilog'; data: EpilogPrologData }
+  | { type: 'back-cover' };
 
 type AlbumViewerProps = {
   album: PhotoAlbum;
@@ -38,6 +39,35 @@ type AlbumViewerProps = {
   epilogData?: EpilogPrologData | null;
 };
 
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
+
+function hasSectionText(value: unknown): boolean {
+  if (!value || typeof value !== 'object') return false;
+  const text = (value as { text?: unknown }).text;
+  return typeof text === 'string' && text.trim().length > 0;
+}
+
+function hasEpilogPrologContent(data?: EpilogPrologData | null): boolean {
+  if (!data) return false;
+
+  if ('text_str' in data) {
+    return data.text_str.trim().length > 0;
+  }
+
+  return (
+    hasSectionText(data.title) ||
+    hasSectionText(data.header) ||
+    hasSectionText(data.body) ||
+    hasSectionText(data.footer)
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Component
+// ---------------------------------------------------------------------------
+
 export function AlbumViewer({
   album,
   eventToken,
@@ -45,6 +75,7 @@ export function AlbumViewer({
   epilogData,
 }: AlbumViewerProps) {
   const { t } = useTranslation();
+  const insets = useSafeAreaInsets();
   const [currentIndex, setCurrentIndex] = useState(0);
   const { width: screenWidth } = useWindowDimensions();
   const queryClient = useQueryClient();
@@ -54,29 +85,32 @@ export function AlbumViewer({
   const images = getImages(album);
   const texts = getTexts(album);
   const isRTL = album.m_treeV5.m_album_direction === 'RTL';
+  const contentWidth = screenWidth * 0.9;
 
-  // Build ordered list of viewer items
+  // -- Viewer items ---------------------------------------------------------
+
   const items: ViewerItem[] = [];
   items.push({ type: 'cover' });
-  if (prologData?.text_str) {
+  if (prologData && hasEpilogPrologContent(prologData)) {
     items.push({ type: 'prolog', data: prologData });
   }
   spreads.forEach((_, index) => {
     items.push({ type: 'spread', index });
   });
-  if (epilogData?.text_str) {
+  if (epilogData && hasEpilogPrologContent(epilogData)) {
     items.push({ type: 'epilog', data: epilogData });
   }
+  items.push({ type: 'back-cover' });
 
-  const onViewableItemsChanged = ({
-    viewableItems,
-  }: {
-    viewableItems: ViewToken<ViewerItem>[];
-  }) => {
-    if (viewableItems.length > 0 && viewableItems[0].index != null) {
-      setCurrentIndex(viewableItems[0].index);
-    }
-  };
+  // -- Navigation -----------------------------------------------------------
+
+  const canGoForward = currentIndex < items.length - 1;
+  const canGoBackward = currentIndex > 0;
+
+  const goForward = () => canGoForward && setCurrentIndex(currentIndex + 1);
+  const goBackward = () => canGoBackward && setCurrentIndex(currentIndex - 1);
+
+  // -- Image editing --------------------------------------------------------
 
   const handleImagePress = (folderID: number) => {
     const image = images.find((img) => img.m_folderID === folderID);
@@ -93,7 +127,6 @@ export function AlbumViewer({
       folderID,
       eventToken,
       onResult: (imageState) => {
-        // Build updated album with new crop/orientation
         const updatedImages = images.map((img) =>
           img.m_folderID === folderID
             ? applyPinturaStateToImage(img, imageState)
@@ -111,19 +144,15 @@ export function AlbumViewer({
           },
         };
 
-        // Optimistically update the query cache
         queryClient.setQueryData(
           queryKeys.albums.tree(eventToken),
           updatedAlbum
         );
 
-        // Save to server
         updateTree.mutate(
           { album: updatedAlbum },
           {
-            onSuccess: () => {
-              toast.success(t('imageEditor.saveSuccess'));
-            },
+            onSuccess: () => toast.success(t('imageEditor.saveSuccess')),
             onError: (error) => {
               console.error('[AlbumViewer] Save failed:', error);
               toast.error(t('imageEditor.saveError'));
@@ -139,13 +168,62 @@ export function AlbumViewer({
     router.push('/image-editor');
   };
 
-  const contentWidth = screenWidth * 0.9;
+  // -- Image swapping -------------------------------------------------------
 
-  const renderItem = ({ item }: { item: ViewerItem }) => {
-    let content: React.ReactNode;
+  const handleImageSwap = (folderIdA: number, folderIdB: number) => {
+    const currentAlbum =
+      queryClient.getQueryData<PhotoAlbum>(
+        queryKeys.albums.tree(eventToken)
+      ) ?? album;
+    const currentImages = getImages(currentAlbum);
+
+    const imageA = currentImages.find((img) => img.m_folderID === folderIdA);
+    const imageB = currentImages.find((img) => img.m_folderID === folderIdB);
+    if (!imageA || !imageB) return;
+
+    const updatedImages = currentImages.map((img) => {
+      if (img.m_folderID === folderIdA) return { ...imageB, m_folderID: folderIdA };
+      if (img.m_folderID === folderIdB) return { ...imageA, m_folderID: folderIdB };
+      return img;
+    });
+
+    const updatedAlbum: PhotoAlbum = {
+      ...currentAlbum,
+      m_treeV5: {
+        ...currentAlbum.m_treeV5,
+        m_book_subtree: {
+          ...currentAlbum.m_treeV5.m_book_subtree,
+          m_tree_tmages: updatedImages,
+        },
+      },
+    };
+
+    queryClient.setQueryData(
+      queryKeys.albums.tree(eventToken),
+      updatedAlbum
+    );
+
+    updateTree.mutate(
+      { album: updatedAlbum },
+      {
+        onError: (error) => {
+          console.error('[AlbumViewer] Swap save failed:', error);
+          toast.error(t('imageEditor.saveError'));
+          queryClient.invalidateQueries({
+            queryKey: queryKeys.albums.tree(eventToken),
+          });
+        },
+      }
+    );
+  };
+
+  // -- Render item ----------------------------------------------------------
+
+  const renderItem = (index: number) => {
+    const item = items[index];
     switch (item.type) {
       case 'cover':
-        content = (
+        return (
           <CoverView
             album={album}
             eventToken={eventToken}
@@ -153,15 +231,22 @@ export function AlbumViewer({
             isRTL={isRTL}
           />
         );
-        break;
       case 'prolog':
       case 'epilog':
-        content = (
-          <EpilogPrologView data={item.data} width={contentWidth} />
+        return (
+          <EpilogPrologView
+            data={item.data}
+            album={album}
+            eventToken={eventToken}
+            width={contentWidth}
+          />
         );
-        break;
+      case 'back-cover':
+        return (
+          <BackCoverView album={album} width={contentWidth} isRTL={isRTL} />
+        );
       case 'spread':
-        content = (
+        return (
           <SpreadView
             spread={spreads[item.index]}
             images={images}
@@ -171,52 +256,95 @@ export function AlbumViewer({
             width={contentWidth}
             isRTL={isRTL}
             onImagePress={handleImagePress}
+            onImageSwap={handleImageSwap}
           />
         );
-        break;
     }
-
-    return (
-      <View style={[styles.itemWrapper, { width: screenWidth }]}>
-        {content}
-      </View>
-    );
   };
 
+  // -- Layout ---------------------------------------------------------------
+
   return (
-    <View style={styles.container}>
-      <FlatList
-        data={items}
+    <View style={styles.screen}>
+      {/* Spread content — fills the screen */}
+      <SpreadRenderer
+        currentIndex={currentIndex}
+        screenWidth={screenWidth}
         renderItem={renderItem}
-        keyExtractor={(item, index) => `${item.type}-${index}`}
-        horizontal
-        pagingEnabled
-        inverted={isRTL}
-        showsHorizontalScrollIndicator={false}
-        onViewableItemsChanged={onViewableItemsChanged}
-        viewabilityConfig={{ itemVisiblePercentThreshold: 50 }}
       />
-      <Text style={styles.pageIndicator}>
-        {currentIndex + 1} / {items.length}
-      </Text>
+
+      {/* Floating overlay controls */}
+      <View
+        style={[
+          StyleSheet.absoluteFill,
+          {
+            paddingTop: insets.top + theme.spacing.sm,
+            paddingBottom: insets.bottom + theme.spacing.sm,
+            paddingLeft: insets.left + theme.spacing.md,
+            paddingRight: insets.right + theme.spacing.md,
+          },
+        ]}
+        pointerEvents="box-none"
+      >
+
+        {/* Top bar: back button + page indicator */}
+        <View style={styles.topBar} pointerEvents="box-none">
+          <FloatingButton icon="chevron-back" onPress={() => router.back()} />
+
+          <View style={styles.pageIndicator}>
+            <Text style={styles.pageIndicatorText}>
+              {currentIndex + 1} / {items.length}
+            </Text>
+          </View>
+        </View>
+
+        {/* Side arrows: vertically centered on left/right edges */}
+        <View style={styles.sideArrows} pointerEvents="box-none">
+          <FloatingButton
+            icon="chevron-back"
+            onPress={isRTL ? goForward : goBackward}
+            disabled={isRTL ? !canGoForward : !canGoBackward}
+          />
+          <FloatingButton
+            icon="chevron-forward"
+            onPress={isRTL ? goBackward : goForward}
+            disabled={isRTL ? !canGoBackward : !canGoForward}
+          />
+        </View>
+
+      </View>
     </View>
   );
 }
 
+// ---------------------------------------------------------------------------
+// Styles
+// ---------------------------------------------------------------------------
+
 const styles = StyleSheet.create({
-  container: {
+  screen: {
     flex: 1,
     backgroundColor: theme.colors.palette.neutral200,
   },
-  itemWrapper: {
-    flex: 1,
+  topBar: {
+    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'space-between',
   },
   pageIndicator: {
+    backgroundColor: 'rgba(255, 255, 255, 0.7)',
+    borderRadius: theme.borderRadius.full,
+    paddingHorizontal: theme.spacing.sm,
+    paddingVertical: theme.spacing.xs / 2,
+  },
+  pageIndicatorText: {
     ...theme.typography.caption,
     color: theme.colors.palette.neutral600,
-    textAlign: 'center',
-    paddingVertical: theme.spacing.sm,
+  },
+  sideArrows: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
 });

@@ -1,22 +1,20 @@
 import { theme } from '@/constants/theme';
-import { env } from '@/config/env';
 import { getImageUrl } from '@/services/api/config';
-import { useUserStore } from '@/stores/user';
-import type { AlbumText, Folder, Image, PhotoAlbum } from '@/types/tree';
+import type { Folder, PhotoAlbum } from '@/types/tree';
 import {
   getCoverImages,
   getCoverSpreadFolders,
   getCoverTexts,
   getTextForFolder,
 } from '@/types/tree';
+import { resolveTitleTextStyle } from '@/utils/tree-colors';
 import {
   Image as RNImage,
-  ImageBackground,
   StyleSheet,
-  Text,
   View,
   type ViewStyle,
 } from 'react-native';
+import { TextSlot } from './text-slot';
 
 type CoverViewProps = {
   album: PhotoAlbum;
@@ -28,38 +26,6 @@ type CoverViewProps = {
 function parseSizeString(size: string): { width: number; height: number } {
   const [w, h] = size.split(',').map(Number);
   return { width: w, height: h };
-}
-
-function buildCoverBackgroundUrl(
-  album: PhotoAlbum,
-  region: Folder
-): string | null {
-  const urlInfoOptions = album.m_treeV5.m_cover_subtree.m_url_information;
-  const urlInfo =
-    urlInfoOptions?.find((info) => info.m_folderID === region.m_folderID) ||
-    urlInfoOptions?.[0];
-  const queryParams = urlInfo?.m_urlInfo;
-  if (!queryParams) return null;
-
-  const pictureName = region.m_background?.m_color_im_id;
-  if (!pictureName) return null;
-
-  const user = useUserStore.getState().user;
-  const defaultParams = {
-    picture: pictureName,
-    size: 'medium',
-    isCustomErr: 'false',
-    cloudcode: env.CLOUD_CODE,
-    app_version: '3.5.27.tf',
-    device_type: 'mobile',
-    token: user?.token ?? '',
-  };
-
-  const extraParams = Object.entries(defaultParams)
-    .map(([key, value]) => `${key}=${encodeURIComponent(String(value))}`)
-    .join('&');
-
-  return `${env.RESOURCES_IMAGE_URL}?${queryParams}&${extraParams}`;
 }
 
 export function CoverView({
@@ -88,26 +54,12 @@ export function CoverView({
 
   if (!frontRegion) return null;
 
-  const spreadSize = parseSizeString(coverSpread.m_size);
   const regionSize = parseSizeString(frontRegion.m_size);
-
   const scaledHeight = (width * regionSize.height) / regionSize.width;
 
-  // Build cover background URL
-  const backgroundUrl = buildCoverBackgroundUrl(album, frontRegion);
-
-  // The background image is the full spread, so we need to show only the front region's portion
-  // Scale: the full spread is wider than the region, so we scale up and offset
-  const bgScaleX = spreadSize.width / regionSize.width;
-  const bgScaleY = spreadSize.height / regionSize.height;
-  const bgWidth = width * bgScaleX;
-  const bgHeight = scaledHeight * bgScaleY;
-
-  // Offset to show the correct region portion
+  // Region origin in the cover spread coordinate space
   const regionOriginX = frontRegion.m_pivot.X - regionSize.width / 2;
   const regionOriginY = frontRegion.m_pivot.Y - regionSize.height / 2;
-  const bgOffsetX = -(regionOriginX / spreadSize.width) * bgWidth;
-  const bgOffsetY = -(regionOriginY / spreadSize.height) * bgHeight;
 
   // Collect image and text elements belonging to this region
   const regionPivotX = frontRegion.m_pivot.X;
@@ -206,72 +158,29 @@ export function CoverView({
         const widthPct = (txtSize.width / regionSize.width) * 100;
         const heightPct = (txtSize.height / regionSize.height) * 100;
 
-        const fontSize = albumText.m_text.m_base.m_font_size_px
-          ? (albumText.m_text.m_base.m_font_size_px / regionSize.height) *
-            scaledHeight
-          : scaledHeight * 0.04;
-
-        const isTextRTL = albumText.m_text.m_direction === 'RTL';
-
         return (
-          <View
+          <TextSlot
             key={`cover-txt-${textFolder.m_folderID}`}
-            style={{
-              position: 'absolute',
-              left: `${leftPct}%`,
-              top: `${topPct}%`,
-              width: `${widthPct}%`,
-              height: `${heightPct}%`,
-              justifyContent: 'center',
-            }}
-          >
-            <Text
-              style={{
-                fontSize,
-                textAlign: isTextRTL ? 'right' : 'left',
-                writingDirection: isTextRTL ? 'rtl' : 'ltr',
-                color: '#fff',
-              }}
-              numberOfLines={2}
-            >
-              {albumText.m_text.m_text_str}
-            </Text>
-          </View>
+            leftPct={leftPct}
+            topPct={topPct}
+            widthPct={widthPct}
+            heightPct={heightPct}
+            albumText={albumText}
+            scaledPageHeight={scaledHeight}
+            pageHeightPx={regionSize.height}
+            style={resolveTitleTextStyle(textFolder)}
+            isCover
+          />
         );
       })}
     </>
   );
 
-  const pageStyle: ViewStyle[] = [
-    styles.coverPage,
-    { width, height: scaledHeight },
-  ];
-
-  if (backgroundUrl) {
-    return (
-      <View style={[styles.container, { width }]}>
-        <View style={[pageStyle, { overflow: 'hidden' }]}>
-          {/* Background image showing just the front region portion */}
-          <RNImage
-            source={{ uri: backgroundUrl }}
-            style={{
-              position: 'absolute',
-              left: bgOffsetX,
-              top: bgOffsetY,
-              width: bgWidth,
-              height: bgHeight,
-            }}
-            resizeMode="stretch"
-          />
-          {elements}
-        </View>
-      </View>
-    );
-  }
-
   return (
     <View style={[styles.container, { width }]}>
-      <View style={pageStyle}>{elements}</View>
+      <View style={[styles.coverPage, { width, height: scaledHeight }]}>
+        {elements}
+      </View>
     </View>
   );
 }

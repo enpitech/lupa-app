@@ -4,6 +4,17 @@
     "appVersionSource": "remote"
   },
   "build": {
+        "preview": {
+            "distribution": "internal",
+            "android": {
+                "buildType": "apk"
+            },
+            "environment": "development",
+            "env": {
+                "EXPO_PUBLIC_APP_VARIANT": "development"
+            },
+            "channel": "development"
+        },
         "development": {
             "developmentClient": true,
             "android": {

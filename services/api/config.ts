@@ -6,6 +6,10 @@ export const apiMethods = {
   refreshToken: 'refreshToken',
   userAlbums: 'userAlbums',
   getepiprotextpage: 'getepiprotextpage',
+  updatealbum: 'updatealbum',
+  closealbum3: 'closealbum3',
+  getbookformats: 'getbookformats',
+  albumthemescategories: 'albumthemescategories',
 } as const;
 
 export const editorMethods = {
@@ -175,6 +179,40 @@ export const getCoverImageUrl = ({
   return `${env.COVER_IMAGE_URL}?${queryString}`;
 };
 
+export const getUploadUrl = ({
+  eventToken,
+  params = {},
+}: {
+  eventToken: string;
+  params?: Record<string, string>;
+}) => {
+  const user = useUserStore.getState().user;
+
+  const defaultParams: Record<string, string> = {
+    filter: 'false',
+    image_text: '',
+    jpeg_quality: '40',
+    lang: 'he',
+    app_version: '3.5.27.tf',
+    device_type: 'mobile',
+    cloudcode: env.CLOUD_CODE,
+    isCustomErr: 'false',
+    event_token: eventToken,
+    token: user?.token ?? '',
+  };
+
+  const allParams = { ...defaultParams, ...params };
+
+  const queryString = Object.entries(allParams)
+    .map(
+      ([key, value]) =>
+        `${encodeURIComponent(key)}=${encodeURIComponent(String(value))}`
+    )
+    .join('&');
+
+  return `${env.API_URL_UPLOAD}?${queryString}`;
+};
+
 export const getBackgroundImageUrl = ({
   pictureId,
   albumToken,
@@ -194,12 +232,17 @@ export const getBackgroundImageUrl = ({
 }) => {
   const user = useUserStore.getState().user;
 
+  // ClientsPages pictures use the prologue_page action (epilog/prolog backgrounds)
+  const action = pictureId.includes('ClientsPages')
+    ? 'prologue_page'
+    : 'snapshots';
+
   const defaultParams: Record<string, string> = {
     format: String(format),
     album_theme: albumTheme,
     cover_family: coverFamily,
     cover_theme: coverTheme,
-    action: 'snapshots',
+    action,
     picture: pictureId,
     size: 'medium',
     cloudcode: env.CLOUD_CODE,

@@ -1,4 +1,86 @@
+import type { ImageStyle } from 'react-native';
 import type { Image as AlbumImage, Rect } from '@/types/tree';
+
+type TransformItem =
+  | { rotate: string }
+  | { scaleX: number }
+  | { scaleY: number };
+
+/**
+ * Returns the React Native transform array for displaying an image with the
+ * given orientation and alignment.  Mirrors the web's
+ * `getRadiansFromOrientation` but outputs CSS-compatible transforms.
+ *
+ * Returns `undefined` when no transform is needed (JPEG_NORMAL with no
+ * alignment) so callers can skip the prop entirely.
+ */
+export function getImageDisplayTransform(
+  orientation: string,
+  alignment: number = 0
+): ImageStyle['transform'] | undefined {
+  const transforms: TransformItem[] = [];
+
+  // Rotation
+  let degrees = 0;
+  let flipX = false;
+
+  switch (orientation) {
+    case 'ROTATE_90':
+      degrees = 90;
+      break;
+    case 'ROTATE_180':
+      degrees = 180;
+      break;
+    case 'ROTATE_270':
+      degrees = 270;
+      break;
+    case 'MIRROR_HORIZONTAL':
+      flipX = true;
+      break;
+    case 'MIRROR_VERTICAL':
+      degrees = 180;
+      flipX = true;
+      break;
+    case 'MIRROR_HORIZONTAL_90':
+      degrees = 90;
+      flipX = true;
+      break;
+    case 'MIRROR_HORIZONTAL_270':
+      degrees = 270;
+      flipX = true;
+      break;
+    case 'JPEG_NORMAL':
+    default:
+      break;
+  }
+
+  // Add alignment (additional fine rotation in degrees)
+  const totalDegrees = degrees + alignment;
+
+  if (totalDegrees === 0 && !flipX) return undefined;
+
+  if (totalDegrees !== 0) {
+    transforms.push({ rotate: `${totalDegrees}deg` });
+  }
+  if (flipX) {
+    transforms.push({ scaleX: -1 });
+  }
+
+  return transforms;
+}
+
+/**
+ * Returns whether the orientation swaps the image's width and height
+ * (i.e. 90° or 270° rotations).
+ */
+export function doesOrientationSwapDimensions(orientation: string): boolean {
+  return (
+    orientation === 'ROTATE_90' ||
+    orientation === 'ROTATE_270' ||
+    orientation === 'MIRROR_HORIZONTAL_90' ||
+    orientation === 'MIRROR_HORIZONTAL_270'
+  );
+}
 
 export enum JPEG_ORIENTATION {
   NOTUSED = 0,

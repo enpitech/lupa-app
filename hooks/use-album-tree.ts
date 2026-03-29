@@ -11,5 +11,12 @@ export const useAlbumTree = ({ eventToken }: { eventToken: string }) => {
     queryFn: () => fetchAlbumTree({ eventToken, token }),
     enabled: !!eventToken && !!token,
     staleTime: 10 * 60 * 1000, // 10 minutes
+    refetchInterval: (query) => {
+      const data = query.state.data;
+      if (!data || data.m_treeV5) return false;
+      // Stop polling after ~30 seconds (10 attempts) to avoid infinite loop
+      // for albums that are not currently being processed
+      return query.state.dataUpdateCount < 10 ? 3000 : false;
+    },
   });
 };

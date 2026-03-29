@@ -4,8 +4,8 @@ import { useAlbumTree } from '@/hooks/use-album-tree';
 import { useEpilogProlog } from '@/hooks/use-epilog-prolog';
 import { useTranslation } from '@/hooks/use-translation';
 import { useNavigation } from '@react-navigation/native';
-import * as ScreenOrientation from 'expo-screen-orientation';
 import { Stack, useLocalSearchParams } from 'expo-router';
+import * as ScreenOrientation from 'expo-screen-orientation';
 import { useEffect } from 'react';
 import {
   ActivityIndicator,
@@ -32,6 +32,7 @@ export default function AlbumScreen() {
 
     return unsubscribe;
   }, [navigation]);
+
   const { event_token } = useLocalSearchParams<{ event_token: string }>();
   const { t } = useTranslation();
   const {
@@ -53,17 +54,9 @@ export default function AlbumScreen() {
     enabled: !!albumTree,
   });
 
-  const albumName = albumTree?.m_treeV5?.m_album_name ?? '';
-
   return (
     <>
-      <Stack.Screen
-        options={{
-          headerShown: true,
-          title: albumName,
-          headerBackTitle: t('common.back'),
-        }}
-      />
+      <Stack.Screen options={{ headerShown: false }} />
 
       {isLoading && (
         <View style={styles.center}>
@@ -80,7 +73,14 @@ export default function AlbumScreen() {
         </View>
       )}
 
-      {albumTree && (
+      {albumTree && !albumTree.m_treeV5 && (
+        <View style={styles.center}>
+          <ActivityIndicator size="large" style={styles.processingSpinner} />
+          <Text style={styles.processingText}>{t('album.processing')}</Text>
+        </View>
+      )}
+
+      {albumTree?.m_treeV5 && (
         <AlbumViewer
           album={albumTree}
           eventToken={event_token}
@@ -98,6 +98,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: theme.colors.background,
+  },
+  processingSpinner: {
+    marginBottom: theme.spacing.md,
+  },
+  processingText: {
+    ...theme.typography.body,
+    color: theme.colors.palette.neutral600,
+    textAlign: 'center',
+    paddingHorizontal: theme.screenPadding.horizontal,
   },
   errorText: {
     ...theme.typography.body,

@@ -86,5 +86,8 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     isStaging: IS_STAGING,
     isProduction: IS_PROD,
     isDebug: IS_DEBUG,
+    eas: {
+      projectId: "14c0f9b3-d566-4c1d-b141-169698a8d784",
+    },
   },
 });

@@ -1,48 +1,88 @@
 export const en = {
   translation: {
-    // Common
-    'common.loading': 'Loading...',
-    'common.error': 'Sorry,',
-    'common.retry': 'Try again',
-    'common.back': 'Back',
-    'common.next': 'Next',
-    'common.close': 'Close',
-    'common.edit': 'Edit',
-
-    // Tabs
-    'tabs.home': 'Home',
-    'tabs.explore': 'Explore',
-
-    // Home screen
-    'home.title': 'Home',
-    'home.myAlbums': 'My Albums',
-    'home.noAlbums': 'No albums yet',
-    'home.albumCount': '{{count}} photos',
-
-    // Album viewer
-    'album.page': 'Pages {{current}} of {{total}}',
-
-    // Explore screen
-    'explore.title': 'Explore',
-
-    // Modal
-    'modal.title': 'This is a modal',
-    'modal.goHome': 'Go to home screen',
-
-    // Image editor
-    'imageEditor.title': 'Edit Image',
-    'imageEditor.resultPreview': 'Result Preview',
-    'imageEditor.selectImage': 'Select an Image to Edit',
-    'imageEditor.undo': 'Undo',
-    'imageEditor.redo': 'Redo',
-    'imageEditor.change': 'Change',
-    'imageEditor.loadError': 'Failed to load image. Please try again.',
-    'imageEditor.editorLoadError': 'Failed to load image in editor.',
-    'imageEditor.saveSuccess': 'Image saved successfully',
-    'imageEditor.saveError': 'Failed to save image changes',
-
-    // User menu
-    'user.menu.logout': 'Logout',
-    'user.menu.login': 'Connect',
+    common: {
+      loading: 'Loading...',
+      error: 'Sorry,',
+      retry: 'Try again',
+      back: 'Back',
+      next: 'Next',
+      close: 'Close',
+      edit: 'Edit',
+    },
+    tabs: {
+      home: 'Home',
+      explore: 'Explore',
+    },
+    home: {
+      title: 'Home',
+      myAlbums: 'My Albums',
+      noAlbums: 'No albums yet',
+      albumCount: '{{count}} photos',
+    },
+    album: {
+      page: 'Pages {{current}} of {{total}}',
+      processing: 'Album is still being generated. Please try again in a moment.',
+    },
+    explore: {
+      title: 'Explore',
+    },
+    modal: {
+      title: 'This is a modal',
+      goHome: 'Go to home screen',
+    },
+    imageEditor: {
+      title: 'Edit Image',
+      resultPreview: 'Result Preview',
+      selectImage: 'Select an Image to Edit',
+      undo: 'Undo',
+      redo: 'Redo',
+      change: 'Change',
+      loadError: 'Failed to load image. Please try again.',
+      editorLoadError: 'Failed to load image in editor.',
+      saveSuccess: 'Image saved successfully',
+      saveError: 'Failed to save image changes',
+    },
+    user: {
+      menu: {
+        logout: 'Logout',
+        login: 'Connect',
+      },
+    },
+    createAlbum: {
+      title: 'Create Album',
+      albumNameLabel: 'Album name',
+      albumNamePlaceholder: 'Enter album name...',
+      eventType: {
+        label: 'Album type',
+        regular: 'Regular',
+        square600: 'Square',
+        miniLupa: 'Mini Lupa',
+        haggadah: 'Haggadah',
+      },
+      continueButton: 'Continue',
+      error: 'Failed to create album. Please try again.',
+    },
+    photoUpload: {
+      title: 'Upload Photos',
+      emptyState: 'Tap "Add Photos" to select photos from your gallery',
+      addPhotos: 'Add Photos',
+      uploadAndFinish: 'Upload & Finish',
+      skipAndFinish: 'Skip',
+      uploading: 'Uploading...',
+      progress: '{{uploaded}} / {{total}} uploaded',
+      done: 'Upload complete!',
+      uploadError: '{{count}} photo(s) failed to upload',
+      viewAlbum: 'View Album',
+      permissionTitle: 'Permission required',
+      permissionMessage: 'Please allow access to your photo library in Settings.',
+    },
+    wizard: {
+      formatSection: 'Format',
+      coverSection: 'Cover type',
+      themeSection: 'Theme',
+      createButton: 'Create Album',
+      creating: 'Creating...',
+      error: 'Failed to create album. Please try again.',
+    },
   },
 } as const;

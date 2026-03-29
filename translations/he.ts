@@ -1,48 +1,88 @@
 export const he = {
   translation: {
-    // Common
-    'common.loading': 'טוען...',
-    'common.error': 'סליחה,',
-    'common.retry': 'לנסות שוב',
-    'common.back': 'חזרה',
-    'common.next': 'הבא',
-    'common.close': 'סגירה',
-    'common.edit': 'עריכה',
-
-    // Tabs
-    'tabs.home': 'בית',
-    'tabs.explore': 'חיפוש',
-
-    // Home screen
-    'home.title': 'בית',
-    'home.myAlbums': 'האלבומים שלי',
-    'home.noAlbums': 'עדיין אין אלבומים',
-    'home.albumCount': '{{count}} תמונות',
-
-    // Album viewer
-    'album.page': 'עמודים {{current}} מתוך {{total}}',
-
-    // Explore screen
-    'explore.title': 'חיפוש',
-
-    // Modal
-    'modal.title': 'זהו חלון מודאלי',
-    'modal.goHome': 'חזרה למסך הבית',
-
-    // Image editor
-    'imageEditor.title': 'עריכת תמונה',
-    'imageEditor.resultPreview': 'תצוגה מקדימה',
-    'imageEditor.selectImage': 'בחרו תמונה לעריכה',
-    'imageEditor.undo': 'ביטול',
-    'imageEditor.redo': 'ביצוע מחדש',
-    'imageEditor.change': 'החלפה',
-    'imageEditor.loadError': 'טעינת התמונה נכשלה. אנא נסו שוב.',
-    'imageEditor.editorLoadError': 'טעינת התמונה בעורך נכשלה.',
-    'imageEditor.saveSuccess': 'התמונה נשמרה בהצלחה',
-    'imageEditor.saveError': 'שמירת שינויי התמונה נכשלה',
-
-    // User menu
-    'user.menu.logout': 'יציאה',
-    'user.menu.login': 'התחברות',
+    common: {
+      loading: 'טוען...',
+      error: 'סליחה,',
+      retry: 'לנסות שוב',
+      back: 'חזרה',
+      next: 'הבא',
+      close: 'סגירה',
+      edit: 'עריכה',
+    },
+    tabs: {
+      home: 'בית',
+      explore: 'חיפוש',
+    },
+    home: {
+      title: 'בית',
+      myAlbums: 'האלבומים שלי',
+      noAlbums: 'עדיין אין אלבומים',
+      albumCount: '{{count}} תמונות',
+    },
+    album: {
+      page: 'עמודים {{current}} מתוך {{total}}',
+      processing: 'האלבום עדיין בתהליך יצירה. אנא נסו שוב בעוד רגע.',
+    },
+    explore: {
+      title: 'חיפוש',
+    },
+    modal: {
+      title: 'זהו חלון מודאלי',
+      goHome: 'חזרה למסך הבית',
+    },
+    imageEditor: {
+      title: 'עריכת תמונה',
+      resultPreview: 'תצוגה מקדימה',
+      selectImage: 'בחרו תמונה לעריכה',
+      undo: 'ביטול',
+      redo: 'ביצוע מחדש',
+      change: 'החלפה',
+      loadError: 'טעינת התמונה נכשלה. אנא נסו שוב.',
+      editorLoadError: 'טעינת התמונה בעורך נכשלה.',
+      saveSuccess: 'התמונה נשמרה בהצלחה',
+      saveError: 'שמירת שינויי התמונה נכשלה',
+    },
+    user: {
+      menu: {
+        logout: 'יציאה',
+        login: 'התחברות',
+      },
+    },
+    createAlbum: {
+      title: 'יצירת אלבום',
+      albumNameLabel: 'שם האלבום',
+      albumNamePlaceholder: 'הכניסו שם לאלבום...',
+      eventType: {
+        label: 'סוג האלבום',
+        regular: 'רגיל',
+        square600: 'מרובע',
+        miniLupa: 'מיני לופה',
+        haggadah: 'הגדה',
+      },
+      continueButton: 'המשך',
+      error: 'יצירת האלבום נכשלה. אנא נסו שוב.',
+    },
+    photoUpload: {
+      title: 'העלאת תמונות',
+      emptyState: 'לחצו על "הוספת תמונות" לבחירת תמונות מהגלריה',
+      addPhotos: 'הוספת תמונות',
+      uploadAndFinish: 'העלאה וסיום',
+      skipAndFinish: 'דלג',
+      uploading: 'מעלה...',
+      progress: '{{uploaded}} / {{total}} הועלו',
+      done: 'ההעלאה הושלמה!',
+      uploadError: '{{count}} תמונות נכשלו בהעלאה',
+      viewAlbum: 'צפייה באלבום',
+      permissionTitle: 'נדרשת הרשאה',
+      permissionMessage: 'אנא אפשרו גישה לגלריה בהגדרות.',
+    },
+    wizard: {
+      formatSection: 'פורמט',
+      coverSection: 'סוג כריכה',
+      themeSection: 'עיצוב',
+      createButton: 'יצירת אלבום',
+      creating: 'יוצר...',
+      error: 'יצירת האלבום נכשלה. אנא נסו שוב.',
+    },
   },
 } as const;
